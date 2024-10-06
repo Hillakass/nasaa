@@ -49,4 +49,8 @@
 		outline: none;
 		border-bottom: 2px solid var(--orange); 
 	}
+
+	input::placeholder {
+		text-align: center; 
+	}
 </style>

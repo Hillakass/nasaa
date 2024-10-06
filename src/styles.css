@@ -22,12 +22,22 @@
 
 :root, input, button, select, textarea {
     font-family: 'Geist', sans-serif;
-    font-size: 1em;
+    font-size: 18px;
 }
 
-body, h1, h2, h3, h4, h5, h6, button, ul, p {
-    margin: 0;
+input, button, select, textarea{
     padding: 0;
+    border: none;
+    background: transparent;
+}
+
+body, h1, h2, h3, h4, h5, h6, p, ul {
+    margin: 0;
+}
+
+svg {
+    display: block;
+    flex-shrink: 0;
 }
 
 h1,h2,h3,h4,h5,h6,strong {
@@ -47,9 +57,24 @@ body {
 .fc { display: flex; align-items: center;}
 .fcol { display: flex; flex-direction: column; }
 .between { display: flex; justify-content: space-between;}
-.p16 { padding: 16px; }
+
+.p24 { padding: 24px }
+.p16 { padding: 16px }
+.p12 { padding: 12px }
+
+.px24 { padding-inline: 24px }
+.px16 { padding-inline: 16px }
+.px12 { padding-inline: 12px }
+.px8  { padding-inline: 18px }
+
+.py32 { padding-block: 32px }
+.py16 { padding-block: 16px }
+.py12 { padding-block: 12px }
+.py8  { padding-block: 18px }
+
 .g64 { gap: 64px }
 .g48 { gap: 48px }
+.g24 { gap: 24px }
 .g16 { gap: 16px }
 .g12 { gap: 12px }
 .g8 { gap: 8px }
@@ -84,5 +109,4 @@ body {
 
 input::placeholder {
     color: var(--gray); 
-    text-align: center;
 }
