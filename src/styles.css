@@ -1,0 +1,119 @@
+@font-face {
+    font-family: 'Geist';
+    src: url('/Geist.woff2') format('woff2');
+    font-weight: 200 900;
+    font-stretch: 75% 125%;
+}
+
+:root {
+    --text: #09090B;
+    --primary: #18181b;
+    --hover: #878787;
+    --border: #E4E4E7;
+    --secondary: #71717a;
+    --alert: #ff5a1f;
+    --background: #000000; 
+    scroll-behavior: smooth;
+}
+
+body, h1, h2, h3, h4, h5, h6, button, ul, p {
+    margin: 0;
+    padding: 0;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Geist', sans-serif;
+    background-color: var(--background);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    max-width: 400px;
+    margin: 0 auto;
+    background-color: var(--background); 
+    color: white;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.logo-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.logo {
+    width: 80px; 
+}
+
+.title {
+    font-size: 2rem;
+    color: white;
+    margin-bottom: 1rem;
+}
+
+.descripcion {
+    font-size: 1rem;
+    color: var(--hover);
+    margin-bottom: 2rem;
+}
+
+.highlight {
+    color: white;
+    font-weight: bold;
+}
+.naranja {
+    color: #EE5E28;
+    font-weight: bold;
+}
+
+/*boton*/
+.input-section input {
+    background: transparent; 
+    border: none;
+    border-bottom: 2px solid white; 
+    color: white;
+    font-size: 1rem;
+    padding: 0.5rem 0;
+    width: 100%;
+    text-align: center; 
+    margin-bottom: 2rem;
+}
+
+.input-section input:focus {
+    outline: none;
+    border-bottom: 2px solid var(--alert); 
+    margin-bottom: 1rem;
+}
+
+.btn-primary {
+    background-color: var(--alert);
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-weight: bold;
+    width: 100%;
+}
+
+.btn-primary:hover {
+    background-color: #e54d1b;
+}
+
+input::placeholder {
+    color: var(--hover); 
+    text-align: center;
+}
