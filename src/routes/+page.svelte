@@ -5,6 +5,10 @@
 	import { nombre } from '$lib/store.js'
 </script>
 
+<svelte:head>
+	<title>GeoAlert</title>
+</svelte:head>
+
 {#if $nombre === ''}
 	<Welcome />
 {:else}

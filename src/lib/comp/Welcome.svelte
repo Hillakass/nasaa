@@ -26,7 +26,7 @@
 		margin: auto;
 		font-size: 20px;
 		text-align: center;
-		min-height: 100vh;
+		min-height: 100dvh;
 		justify-content: center;
 	}
 	h1 {
