@@ -1,13 +1,9 @@
 <script>
 	import Welcome from '$lib/comp/Welcome.svelte'
 	import Map from '$lib/comp/Map.svelte'
-	import { nombre } from '$lib/store.js'
+	import { nombre, selectedDistrictId } from '$lib/store.js'
 
 	export let data
-
-	const region = {
-		name: 'AMAZONAS'
-	}
 
 	let datos = ['Cerro Colorado', 'Yura', 'Jose Luis Bustamante y Ribero', 'Cerro Colorado', 'Cayma',];
 	let mostrarTodos = false;
@@ -20,9 +16,7 @@
 	// Obtener los datos que se mostrarán
 	$: datosMostrados = mostrarTodos ? datos : datos.slice(0, 3);
 
-	const animals = data.animals
-
-	$: my_animals = animals.filter(r => r.name === region.name)[0].animals
+	$: departamento = data.departamentos[$selectedDistrictId - 1]
 </script>
 
 <svelte:head>
@@ -33,8 +27,8 @@
 	<Welcome />
 {:else}
 	<Map>
-		{#if region}
-			<h1>{region.name}</h1>
+		{#if departamento}
+			<h1>{departamento.name}</h1>
 			<section class="fcol g12">
 				<h2>Desastres en esta zona</h2>
 				<div class="fcol g8">
@@ -56,14 +50,14 @@
 			<section class="fcol g12">
 				<h2>Especies Endémicas</h2>
 				<div class="fc g12 slider">
-					{#each my_animals as animal}
+					{#each departamento.animals as animal}
 						<img width="96" height="96" src={animal.img} alt={animal.name}>
 					{/each}
 				</div>
 			</section>
 			<section class="fcol g12">
 				<h2>Averigua más</h2>
-				<p>El Indice de Desarrollo Humano en Arequipa es el más bajo del país según el último censo de 	<a href="/">INEI 2024</a>.</p>
+				<p>{departamento.about}</p>
 			</section>
 			<button type="button" class="btn btn-outline">Recibir Notificaciones </button>
 			<button type="button" class="btn btn-primary">Notificar Emergencia</button>

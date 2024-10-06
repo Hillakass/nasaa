@@ -1,7 +1,7 @@
-import { animals } from './data.js'
+import { departamentos } from './data.js'
 
 export async function load() {
 	return {
-		animals
+		departamentos
 	}
 }

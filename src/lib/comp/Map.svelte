@@ -3,14 +3,12 @@
 	import Search from '$lib/comp/Search.svelte'
 	import { onMount } from 'svelte';
 	import { bbox } from '@turf/turf';
+	import { selectedDistrictId } from '$lib/store.js'
 
 	let dialog
 	let opened = false
 
-
 	onMount(() => {
-
-		let selectedDistrictId = null; // Variable para almacenar el ID del distrito seleccionado
 
 		// Mapbox access token
 		mapboxgl.accessToken = 'pk.eyJ1IjoicC1wYXNjYWwiLCJhIjoiY20wcHBsbWNpMDNqZzJpb2RvY2o4Y3lieSJ9.qXJ0kOaYERtJ22_Gzd7s-g';
@@ -96,17 +94,7 @@
 								layout: {
 										'icon-image': 'fire',  // reference the image loaded
 										'icon-size': 0.25
-								},
-								/*paint: {
-										// Adjust opacity based on brightness
-										'icon-opacity': [
-												'interpolate',
-												['linear'],
-												['get', 'brightness'],
-												200, 0.2,   // Low brightness, low opacity
-												400, 1.0    // High brightness, full opacity
-										]
-								}*/
+								}
 						});
 
 						// Add a heatmap layer using brightness
@@ -149,14 +137,6 @@
 												0, 2,
 												9, 22
 										],
-										// Decrease the opacity of the heatmap as the zoom level increases
-										/*'heatmap-opacity': [
-												'interpolate',
-												['linear'],
-												['zoom'],
-												7, 1,
-												9, 22
-										],*/
 								}
 						});
 				}
@@ -173,6 +153,34 @@
 				} else {
 						alert("Failed to fetch data from the API.");
 				}
+		}
+
+		function handleClick(e) {
+			const clickedDistrictId = e.features[0].id; // ID of the clicked district
+
+			// If there is a previously selected district, reset its state
+			if ($selectedDistrictId !== null) {
+					map.setFeatureState(
+							{ source: 'distritos', id: $selectedDistrictId },
+							{ selected: false }
+					);
+			}
+
+			// Select the new clicked district
+			$selectedDistrictId = clickedDistrictId;
+			map.setFeatureState(
+					{ source: 'distritos', id: clickedDistrictId },
+					{ selected: true }
+			);
+
+			// Get the bounding box of the clicked district
+			let my_bbox = bbox(e.features[0]);
+			// Fit the map to the bounding box of the clicked district
+			map.fitBounds(my_bbox, {
+					linear: false,
+					maxZoom: 7,
+					padding: 20
+			});
 		}
 
 		map.on('load', () => {
@@ -226,33 +234,7 @@
 						}
 					});
 
-					map.on('click', 'distritos-fill', (e) => {
-						const clickedDistrictId = e.features[0].id; // ID of the clicked district
-
-						// If there is a previously selected district, reset its state
-						if (selectedDistrictId !== null) {
-								map.setFeatureState(
-										{ source: 'distritos', id: selectedDistrictId },
-										{ selected: false }
-								);
-						}
-
-						// Select the new clicked district
-						selectedDistrictId = clickedDistrictId;
-						map.setFeatureState(
-								{ source: 'distritos', id: clickedDistrictId },
-								{ selected: true }
-						);
-
-						// Get the bounding box of the clicked district
-						let my_bbox = bbox(e.features[0]);
-						// Fit the map to the bounding box of the clicked district
-						map.fitBounds(my_bbox, {
-								linear: false,
-								maxZoom: 7,
-								padding: 20
-						});
-					});
+					map.on('click', 'distritos-fill', handleClick);
 	
 					// Cambiar el cursor al pasar sobre un distrito
 					map.on('mouseenter', 'distritos-fill', () => {

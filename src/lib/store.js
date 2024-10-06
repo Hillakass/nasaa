@@ -6,7 +6,6 @@ function createPersistedStore(key, initialValue) {
 
     const data = writable(storedValue ? JSON.parse(storedValue) : initialValue);
 
-
     data.subscribe((value) => {
         if (isBrowser && value !== undefined) {
             localStorage.setItem(key, JSON.stringify(value));
@@ -17,3 +16,4 @@ function createPersistedStore(key, initialValue) {
 }
 
 export const nombre = createPersistedStore('nombre', '');
+export const selectedDistrictId = writable(null);
