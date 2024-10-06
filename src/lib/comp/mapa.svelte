@@ -1,12 +1,9 @@
 <script>
-    import { nombre } from '$lib/store.js'; 
-
-    let name = '';
-    $: name = $nombre; 
+    import { nombre } from '$lib/store.js';
 </script>
 
 <div class="map-container">
-    <h2>Bienvenido al mapa, {name}!</h2>
+    <h2>Bienvenido al mapa, {$nombre}!</h2>
     <p>Aquí podrás ver el mapa con información relevante.</p>
 </div>
 

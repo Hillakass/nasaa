@@ -1,18 +1,7 @@
 <script>
-    import { createEventDispatcher } from 'svelte'; 
-    import { nombre } from '$lib/store.js'; 
+    import { nombre } from '$lib/store.js';
 
-    let name = '';
-    $: name = $nombre;
-    const dispatch = createEventDispatcher();
-
-    function handleContinue() {
-        if (name) {
-            dispatch('continuar'); 
-        } else {
-            alert('Por favor, ingresa tu nombre.');
-        }
-    }
+    let name = ''
 </script>
 
 <div class="container center">
@@ -24,20 +13,19 @@
             <path d="M74.6667 43.1667V80.5" stroke="white" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M96 27.1667V96.5" stroke="white" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M117.333 53.8333V69.8333" stroke="white" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+        </svg>
     </div>
 
     <h1 class="title">Geo<span class="naranja">Alert</span></h1>
     <p class="descripcion">
-        <span class="highlight">Geo</span><span class="naranja">Alert</span> te conecta con tu <span class="highlight">comunidad</span> para alertar sobre incendios y otros desastres. 
-        Recibe avisos en tiempo real y reporta eventos cerca tuyo.
+        <span class="highlight">Geo</span><span class="naranja">Alert</span> te conecta con tu comunidad para alertar sobre incendios y otros desastres. Recibe avisos en tiempo real y reporta eventos cerca tuyo.
     </p>
 
     <div class="input-section">
         <label>
             <input type="text" bind:value={name} placeholder="¿Cómo te llamas?" required />
         </label>
-        <button class="btn btn-primary" on:click={handleContinue}>
+        <button class="btn btn-primary" on:click={() => $nombre = name}>
             Continuar
         </button>
     </div>
