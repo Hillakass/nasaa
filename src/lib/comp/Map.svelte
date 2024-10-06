@@ -179,7 +179,7 @@
 			map.fitBounds(my_bbox, {
 					linear: false,
 					maxZoom: 7,
-					padding: 20
+					padding: {bottom: 250}
 			});
 		}
 
