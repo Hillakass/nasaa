@@ -32,6 +32,10 @@ input, button, select, textarea{
     background: transparent;
 }
 
+img {
+    object-fit: cover;
+}
+
 .toggle {
     flex-shrink: 0;
     --handleoffset: 1rem;
@@ -79,6 +83,9 @@ body {
     color: var(--gray);
     min-height: 100dvh;
 }
+button:active {
+    transform: scale(0.95);
+}
 
 .fc { display: flex; align-items: center;}
 .fcol { display: flex; flex-direction: column; }
@@ -119,6 +126,12 @@ body {
     border: none;
 }
 
+.btn-outline {
+    box-shadow: 0 0 16px 0 rgba(255, 255, 255, 0.1);
+    border: 1px solid white;
+    color: white;
+}
+
 .btn-primary {
     background-color: var(--orange);
     box-shadow: 0 0 16px 0 var(--orange);
@@ -131,6 +144,14 @@ body {
 .btn-primary:focus {
     background-color: #f27d51;
     box-shadow: 0 0 32px 0 var(--orange);
+    outline: none;
+}
+
+.btn-outline:hover {
+    background-color: #ffffff2d;
+}
+.btn-outline:focus {
+    box-shadow: 0 0 32px 0 rgba(255, 255, 255, 0.1);
     outline: none;
 }
 

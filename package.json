@@ -16,6 +16,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@turf/turf": "^7.1.0",
 		"mapbox-gl": "^3.7.0"
 	}
 }

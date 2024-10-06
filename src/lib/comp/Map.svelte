@@ -1,8 +1,271 @@
 <script>
+	import mapboxgl from 'mapbox-gl'
 	import Search from '$lib/comp/Search.svelte'
+	import { onMount } from 'svelte';
+	import { bbox } from '@turf/turf';
 
 	let dialog
 	let opened = false
+
+
+	onMount(() => {
+
+		let selectedDistrictId = null; // Variable para almacenar el ID del distrito seleccionado
+
+		// Mapbox access token
+		mapboxgl.accessToken = 'pk.eyJ1IjoicC1wYXNjYWwiLCJhIjoiY20wcHBsbWNpMDNqZzJpb2RvY2o4Y3lieSJ9.qXJ0kOaYERtJ22_Gzd7s-g';
+
+		// Initialize the map
+		const map = new mapboxgl.Map({
+				container: 'map',
+				style: 'mapbox://styles/mapbox/dark-v11',
+				center: [-71, -16],
+				zoom: 5
+		});
+
+		// Fetch data from the API
+		async function fetchData() {
+				const MAP_KEY = 'af61b5158d90f9fbe8bd0f49b87d8576';
+				const url = `https://firms.modaps.eosdis.nasa.gov/api/country/csv/${MAP_KEY}/MODIS_NRT/PER/4`;
+
+				try {
+						const response = await fetch(url);
+						const textData = await response.text();
+						const csvData = csvToArray(textData);
+						return csvData;
+				} catch (error) {
+						console.error("Error fetching data:", error.message);
+						return null;
+				}
+		}
+
+		// Convert CSV to array of objects
+		function csvToArray(str, delimiter = ",") {
+				const headers = str.slice(0, str.indexOf("\n")).split(delimiter);
+				const rows = str.slice(str.indexOf("\n") + 1).split("\n");
+
+				return rows.map(row => {
+						const values = row.split(delimiter);
+						const obj = headers.reduce((acc, header, index) => {
+								acc[header.trim()] = values[index] ? values[index].trim() : null;
+								return acc;
+						}, {});
+						return obj;
+				}).filter(row => row.latitude && row.longitude);  // Filter out empty rows
+		}
+
+		// Convert data to GeoJSON
+		function dfToGeoJSON(data) {
+				const features = data.map(row => ({
+						type: "Feature",
+						geometry: {
+								type: "Point",
+								coordinates: [parseFloat(row.longitude), parseFloat(row.latitude)]
+						},
+						properties: {
+								brightness: parseFloat(row.brightness),
+								acq_date: row.acq_date,
+								acq_time: row.acq_time,
+								satellite: row.satellite.toString(),
+								confidence: parseFloat(row.confidence)
+						}
+				}));
+
+				return {
+						type: "FeatureCollection",
+						features: features
+				};
+		}
+
+		// Add GeoJSON data to the map as a layer
+		function addGeoJSONLayerToMap(geojsonData) {
+				if (map.getSource('geojsonData')) {
+						map.getSource('geojsonData').setData(geojsonData);
+				} else {
+						// Add a new source with the GeoJSON data
+						map.addSource('geojsonData', {
+								type: 'geojson',
+								data: geojsonData
+						});
+
+						// Add a layer to display the points (icon)
+						map.addLayer({
+								id: 'geojsonLayer',
+								type: 'symbol',
+								source: 'geojsonData',
+								layout: {
+										'icon-image': 'fire',  // reference the image loaded
+										'icon-size': 0.25
+								},
+								/*paint: {
+										// Adjust opacity based on brightness
+										'icon-opacity': [
+												'interpolate',
+												['linear'],
+												['get', 'brightness'],
+												200, 0.2,   // Low brightness, low opacity
+												400, 1.0    // High brightness, full opacity
+										]
+								}*/
+						});
+
+						// Add a heatmap layer using brightness
+						map.addLayer({
+								id: 'heatmapLayer',
+								type: 'heatmap',
+								source: 'geojsonData',
+								maxzoom: 22,
+								paint: {
+										// Increase the heatmap weight based on brightness property
+										'heatmap-weight': {
+										property: 'point_count',
+										type: 'identity',
+										},
+										// Increase the heatmap intensity as the zoom level increases
+										'heatmap-intensity': [
+												'interpolate',
+												['linear'],
+												['zoom'],
+												0, 1,
+												9, 22
+										],
+										// Color ramp for heatmap
+										'heatmap-color': [
+												'interpolate',
+												['linear'],
+												['heatmap-density'],
+												0, 'rgba(21,25,18,0)',
+												0.2, '#EF7532',
+												0.4, '#EC9B00',
+												0.6, '#EC5300',
+												0.8, '#EE5E28',
+												1, '#E94040'
+										],
+										// Adjust the heatmap radius by zoom level
+										'heatmap-radius': [
+												'interpolate',
+												['linear'],
+												['zoom'],
+												0, 2,
+												9, 22
+										],
+										// Decrease the opacity of the heatmap as the zoom level increases
+										/*'heatmap-opacity': [
+												'interpolate',
+												['linear'],
+												['zoom'],
+												7, 1,
+												9, 22
+										],*/
+								}
+						});
+				}
+		}
+
+		// Automatically fetch and display data when the page loads
+		async function initializeMap() {
+				const data = await fetchData();
+				if (data) {
+						const geojsonData = dfToGeoJSON(data);
+
+						// Add the markers as a GeoJSON layer and a heatmap layer
+						addGeoJSONLayerToMap(geojsonData);
+				} else {
+						alert("Failed to fetch data from the API.");
+				}
+		}
+
+		map.on('load', () => {
+				// Load an image from an external URL for the fire icon
+				map.loadImage(
+						'https://www.gstatic.com/devrel-devsite/prod/vdf5af65c45d9e2fdd493c581ff01cb1d11a21b4420a9fcc957400a26863da9d2/firebase/images/touchicon-180.png',
+						(error, image) => {
+								if (error) throw error;
+
+								// Add the image to the map style
+								map.addImage('fire', image);
+
+								// Initialize the map and load the data
+								initializeMap();
+						}
+				);
+
+				fetch('short.geojson')
+				.then(response => response.json())
+				.then(data => {
+					map.addSource('distritos', {
+						'type': 'geojson',
+						'data': data
+					});
+	
+					map.addLayer({
+						'id': 'distritos-fill',
+						'type': 'fill',
+						'source': 'distritos',
+						'layout': {},
+						'paint': {
+							'fill-color': '#EE5E28',
+							'fill-opacity': [
+								'case',
+								['boolean', ['feature-state', 'selected'], false],
+								0.3,  // Color del distrito seleccionado
+								0.1   // Color por defecto
+							]
+						}
+					});
+	
+					map.addLayer({
+						'id': 'distritos-line',
+						'type': 'line',
+						'source': 'distritos',
+						'layout': {},
+						'paint': {
+							'line-color': '#EE5E28',
+							'line-width': 1,
+							'line-opacity': 0.75
+						}
+					});
+
+					map.on('click', 'distritos-fill', (e) => {
+						const clickedDistrictId = e.features[0].id; // ID of the clicked district
+
+						// If there is a previously selected district, reset its state
+						if (selectedDistrictId !== null) {
+								map.setFeatureState(
+										{ source: 'distritos', id: selectedDistrictId },
+										{ selected: false }
+								);
+						}
+
+						// Select the new clicked district
+						selectedDistrictId = clickedDistrictId;
+						map.setFeatureState(
+								{ source: 'distritos', id: clickedDistrictId },
+								{ selected: true }
+						);
+
+						// Get the bounding box of the clicked district
+						let my_bbox = bbox(e.features[0]);
+						// Fit the map to the bounding box of the clicked district
+						map.fitBounds(my_bbox, {
+								linear: false,
+								maxZoom: 7,
+								padding: 20
+						});
+					});
+	
+					// Cambiar el cursor al pasar sobre un distrito
+					map.on('mouseenter', 'distritos-fill', () => {
+						map.getCanvas().style.cursor = 'pointer';
+					});
+	
+					map.on('mouseleave', 'distritos-fill', () => {
+						map.getCanvas().style.cursor = '';
+					});
+				})
+				.catch(error => console.error('Error al cargar el GeoJSON:', error));
+		});
+	})
 
 </script>
 
@@ -76,6 +339,13 @@
 	article {
 		border-radius: 1em;
 		width: 100%;
+		max-height: 50vh;
+    overflow-y: scroll;
+		-ms-overflow-style: none;
+  	scrollbar-width: none;
+	}
+	article::-webkit-scrollbar {
+		display: none;
 	}
 	#map {
 		background: #1F1F20;
