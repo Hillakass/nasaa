@@ -28,7 +28,33 @@
 input, button, select, textarea{
     padding: 0;
     border: none;
+    margin: 0;
     background: transparent;
+}
+
+.toggle {
+    flex-shrink: 0;
+    --handleoffset: 1rem;
+    --handleoffsetcalculator: calc(var(--handleoffset)* -1);
+    --togglehandleborder: 0 0;
+    height: 1rem;
+    border: 2px solid var(--gray);
+    width: 2rem;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: var(--rounded-badge, 1.9rem);
+    background-color: var(--gray);
+    color: var(--gray);
+    transition: background, box-shadow var(--animation-input, .2s) ease-out;
+    box-shadow: var(--handleoffsetcalculator) 0 0 2px var(--bg) inset, 0 0 0 2px var(--bg) inset, var(--togglehandleborder);
+}
+.toggle:checked {
+    border: 2px solid var(--orange);
+    background-image: none;
+    background-color: var(--orange);
+    --handleoffsetcalculator: var(--handleoffset);
 }
 
 body, h1, h2, h3, h4, h5, h6, p, ul {
@@ -105,6 +131,10 @@ body {
     background-color: #f27d51;
     box-shadow: 0 0 32px 0 var(--orange);
     outline: none;
+}
+
+.grow {
+    flex: 1;
 }
 
 input::placeholder {
