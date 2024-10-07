@@ -7,20 +7,36 @@
 
 	let dialog
 	let opened = false
-
+	let showIcons = true;
+	let showHeatmap = true;
+	let map;
+	function toggleIcons(event) {
+        showIcons = event.target.checked;
+		//showHeatmap = false;
+        //map.setLayoutProperty('geojsonLayer', 'visibility', showIcons ? 'visible' : 'none');
+		updateMapLayers();
+    	}
+		function toggleHeatmap(event) {
+        showHeatmap = event.target.checked;
+        //showIcons = false; // Ocultar los iconos si se muestra el mapa de calor
+        updateMapLayers();
+    }
+	function updateMapLayers() {
+		
+		map.setLayoutProperty('geojsonLayer', 'visibility',showIcons? 'visible' : 'none');
+        map.setLayoutProperty('heatmapLayer', 'visibility',showHeatmap? 'visible' : 'none');
+    }
 	onMount(() => {
-
 		// Mapbox access token
 		mapboxgl.accessToken = 'pk.eyJ1IjoicC1wYXNjYWwiLCJhIjoiY20wcHBsbWNpMDNqZzJpb2RvY2o4Y3lieSJ9.qXJ0kOaYERtJ22_Gzd7s-g';
 
 		// Initialize the map
-		const map = new mapboxgl.Map({
+		map = new mapboxgl.Map({
 				container: 'map',
 				style: 'mapbox://styles/mapbox/dark-v11',
 				center: [-71, -16],
 				zoom: 5
 		});
-
 		// Fetch data from the API
 		async function fetchData() {
 				const MAP_KEY = 'af61b5158d90f9fbe8bd0f49b87d8576';
@@ -139,6 +155,7 @@
 										],
 								}
 						});
+					//map.setLayoutProperty('heatmapLayer', 'visibility', 'none');
 				}
 		}
 
@@ -247,6 +264,7 @@
 				})
 				.catch(error => console.error('Error al cargar el GeoJSON:', error));
 		});
+		updateMapLayers();
 	})
 
 </script>
@@ -255,7 +273,7 @@
 	<Search/>
 	<div id="map"></div>
 	<div class="container fcol g16">
-		<button type="button" title="Capas" class="p12" on:click={() => {
+		<button type="button" title="Capas" class="layers p12" on:click={() => {
 			dialog.showModal();
 			opened = true;
 		}}>
@@ -276,25 +294,15 @@
 			</button>
 		</form>
 		<div class="fcol g16">
-			<label for="disasters" class="fc g12">
-				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trees"><path d="M10 10v.2A3 3 0 0 1 8.9 16H5a3 3 0 0 1-1-5.8V10a3 3 0 0 1 6 0Z"/><path d="M7 16v6"/><path d="M13 19v3"/><path d="M12 19h8.3a1 1 0 0 0 .7-1.7L18 14h.3a1 1 0 0 0 .7-1.7L16 9h.2a1 1 0 0 0 .8-1.7L13 3l-1.4 1.5"/></svg>
-				<p class="grow">Desastres Naturales</p>
-				<input class="toggle" type="checkbox" name="disasters" id="disasters">
+			<label for="icons" class="fc g12">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+				<p class="grow">Iconos</p>
+				<input class="toggle" type="checkbox" name="icons" id="icons" bind:checked={showIcons} on:change={toggleIcons}>
 			</label>
-			<label for="disasters" class="fc g12">
-				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-alert"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
-				<p class="grow">Seguridad</p>
-				<input class="toggle" type="checkbox" name="disasters" id="disasters">
-			</label>
-			<label for="disasters" class="fc g12">
-				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--sky)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users-round"><path d="M18 21a8 8 0 0 0-16 0"/><circle cx="10" cy="8" r="5"/><path d="M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3"/></svg>
-				<p class="grow">Población</p>
-				<input class="toggle" type="checkbox" name="disasters" id="disasters">
-			</label>
-			<label for="disasters" class="fc g12">
-				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-hand-coins"><path d="M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 17"/><path d="m7 21 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"/><path d="m2 16 6 6"/><circle cx="16" cy="9" r="2.9"/><circle cx="6" cy="5" r="3"/></svg>
-				<p class="grow">Nivel Económico</p>
-				<input class="toggle" type="checkbox" name="disasters" id="disasters">
+			<label for="heatmap" class="fc g12">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></svg>
+				<p class="grow">Mapa de Calor</p>
+				<input class="toggle" type="checkbox" name="heatmap" id="heatmap" bind:checked={showHeatmap} on:change={toggleHeatmap}>
 			</label>
 		</div>
 	</dialog>
@@ -325,7 +333,7 @@
 		top: -60px;
 	}
 	.about {
-		top: -64px;
+		top: -120px;
 	}
 	button:hover, .about:hover {
 		background: #232422;
@@ -347,12 +355,14 @@
 		height: 100dvh;
 	}
 	dialog {
+		left: auto;
 		width: 80%;
 		max-width: 360px;
 		border: none;
 		color: var(--text);
 		bottom: 0;
-    left: 100%;
+    position: absolute;
+    right: -100%;
     top: 0;
     margin: 0;
     height: 100%;
@@ -361,7 +371,7 @@
     z-index: 6;
 	}
 	dialog.opened {
-		left: 20%;
+		right: 0;
 	}
 	h1 {
 		font-size: 32px;
